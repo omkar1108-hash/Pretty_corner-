@@ -81,9 +81,33 @@ body {
 .bg-slide.is-active,
 .bg-slide.is-leaving { animation: kenburns 16s ease-out forwards; }
 
-[data-fx] { will-change: opacity, transform, filter; }
-
 @media (prefers-reduced-motion: reduce) {
   .bg-slide.is-active, .bg-slide.is-leaving { animation: none; }
-  [data-fx] { will-change: auto; }
+}
+
+/* ------------------------------------------------------------ scroll-linked motion
+   Things coming up from the bottom start small and faded and grow to full size as
+   they rise; things leaving at the top shrink and fade away.
+   Runs on the browser's compositor (scroll-driven animations), so it stays smooth
+   even when the page is busy. SmoothScroll.tsx provides the same effect from
+   JavaScript for browsers without animation-timeline. */
+@keyframes fx-in      { from { opacity: 0; transform: translate3d(0, 56px, 0) scale(0.55); } to { opacity: 1; transform: none; } }
+@keyframes fx-out     { from { opacity: 1; transform: none; } to { opacity: 0; transform: translate3d(0, -56px, 0) scale(0.55); } }
+@keyframes fx-in-blur  { from { opacity: 0; filter: blur(10px); transform: translate3d(0, 56px, 0) scale(0.55); } to { opacity: 1; filter: none; transform: none; } }
+@keyframes fx-out-blur { from { opacity: 1; filter: none; transform: none; } to { opacity: 0; filter: blur(10px); transform: translate3d(0, -56px, 0) scale(0.55); } }
+@keyframes bg-dive    { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(0, -3%, 0) scale(1.3); } }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-fx] {
+      animation: fx-in ease-out both, fx-out ease-in forwards;
+      animation-timeline: view(), view();
+      animation-range: entry 0% entry 100%, exit 0% exit 100%;
+    }
+    [data-fx="blur"] { animation-name: fx-in-blur, fx-out-blur; }
+    [data-bg-zoom] {
+      animation: bg-dive linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
 }

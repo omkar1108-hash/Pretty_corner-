@@ -1,0 +1,30 @@
+PRETTY CORNER: HOW TO RUN ON A COMPUTER (Windows / Mac)
+
+You need: a laptop/PC, internet for the first setup (about 200 MB), and Node.js.
+
+1. Install Node.js (LTS version) from https://nodejs.org  (about 30 MB). Restart the computer if asked.
+
+2. Open a terminal inside the "apps\web" folder
+   - Windows: open the folder in File Explorer, click the address bar, type  cmd  and press Enter
+   - Mac: right-click the folder > "New Terminal at Folder"
+
+3. First time only (downloads about 160 MB):
+       npm install
+
+4. Start the SHOP the way a real visitor would see it (smooth, fast):
+       npm run build
+       npm start
+   Open  http://localhost:3000
+
+   For quick editing you can use  npm run dev  instead, but it is SLOWER and the
+   scroll animations will look choppy. Always judge smoothness with build + start.
+
+5. To also run the seller dashboard, repeat steps 2-4 inside the "apps\seller" folder
+   (use  npm run build  then  npm start ). Open  http://localhost:3001
+   It needs Supabase keys first (see README.md, section "One-time setup").
+
+6. To see the site on a PHONE on the same Wi-Fi: run  npm start  and open
+   http://<your-PC-IP>:3000  on the phone. (If it does not open, allow Node.js
+   through the Windows firewall.)
+
+To stop a site: press Ctrl+C in its terminal.

@@ -72,7 +72,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
   return (
     <div className="grid gap-6 md:grid-cols-[230px_1fr]">
       {/* ---- filters ---- */}
-      <aside data-fx>
+      <aside data-fx="blur">
         <div className="flex gap-2 md:block">
           <input
             className="input"
@@ -132,7 +132,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
 
       {/* ---- results ---- */}
       <section>
-        <div data-fx className="mb-4 flex items-center justify-between gap-3">
+        <div data-fx="blur" className="mb-4 flex items-center justify-between gap-3">
           <p className="text-sm text-muted">
             {shown.length} {t.results}
           </p>

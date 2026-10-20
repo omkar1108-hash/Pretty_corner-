@@ -7,57 +7,53 @@ import { usePathname } from "next/navigation";
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
-let lastSegment = 0;
 const STEP_SCREENS = 1.5; // change the background picture every ~1.5 screens of scrolling
+let lastSegment = 0;
 
-const MAX_BLUR = 10; // px
-const DRIFT = 28; // px
-
-/**
- * Scroll-linked reveal for every element marked `data-fx`:
- * as it nears the top of the screen it blurs, shrinks slightly and fades out;
- * as it comes up from the bottom it sharpens and fades in.
- * Styles are written straight to the element (no React re-render per frame).
- */
-function applyFx() {
-  const vh = window.innerHeight;
-
-  // Background "dive": zoom in and drift up a little as you travel down the page.
-  const bg = document.querySelector<HTMLElement>("[data-bg-zoom]");
-  if (bg) {
-    const range = Math.max(1, document.documentElement.scrollHeight - vh);
-    const t = clamp(window.scrollY / range);
-    bg.style.transform = `translate3d(0, ${(-t * 3).toFixed(2)}%, 0) scale(${(1 + t * 0.3).toFixed(4)})`;
-  }
-
-  // Scrolling through the page also moves the background to the next / previous picture.
-  const segment = Math.floor(window.scrollY / (vh * STEP_SCREENS));
+/** Moves the background to the next / previous picture as you scroll through the page. */
+function trackBackgroundStep() {
+  const segment = Math.floor(window.scrollY / (window.innerHeight * STEP_SCREENS));
   if (segment !== lastSegment) {
     window.dispatchEvent(new CustomEvent("bg-step", { detail: segment > lastSegment ? 1 : -1 }));
     lastSegment = segment;
   }
-  const zone = vh * 0.3;
+}
 
-  document.querySelectorAll<HTMLElement>("[data-fx]").forEach((el) => {
-    const r = el.getBoundingClientRect();
-    const entering = clamp((vh - r.top) / zone);
-    const leaving = clamp(r.bottom / zone);
-    const p = smooth(Math.min(entering, leaving));
+/**
+ * Fallback for browsers without CSS scroll-driven animations (see globals.css).
+ * Same look: elements marked `data-fx` start small + faded as they come up from the
+ * bottom, grow to full size, then shrink + fade as they leave at the top.
+ * All layout reads happen first, then all writes, so it never forces a re-layout.
+ */
+function applyFxFallback() {
+  const vh = window.innerHeight;
+  const els = Array.from(document.querySelectorAll<HTMLElement>("[data-fx]"));
+  const rects = els.map((el) => el.getBoundingClientRect());
+
+  els.forEach((el, i) => {
+    const { top, bottom, height } = rects[i];
+    const span = Math.max(1, Math.min(height, vh));
+    const enter = clamp((vh - top) / span);
+    const leave = clamp((span - bottom) / span);
+    const p = smooth(1 - Math.max(1 - enter, leave));
 
     if (p > 0.995) {
-      // fully visible: remove the styles entirely (also avoids creating stacking contexts)
-      if (el.style.opacity) {
-        el.style.removeProperty("opacity");
-        el.style.removeProperty("filter");
-        el.style.removeProperty("transform");
-      }
+      el.style.removeProperty("opacity");
+      el.style.removeProperty("transform");
+      el.style.removeProperty("filter");
       return;
     }
-    const dir = leaving < entering ? -1 : 1;
+    const dir = leave > 1 - enter ? -1 : 1;
     el.style.opacity = p.toFixed(3);
-    el.style.filter = `blur(${((1 - p) * MAX_BLUR).toFixed(2)}px)`;
-    el.style.transform = `translate3d(0, ${((1 - p) * DRIFT * dir).toFixed(1)}px, 0) scale(${(0.97 + 0.03 * p).toFixed(4)})`;
+    el.style.transform = `translate3d(0, ${((1 - p) * 56 * dir).toFixed(1)}px, 0) scale(${(0.55 + 0.45 * p).toFixed(4)})`;
+    if (el.dataset.fx === "blur") el.style.filter = `blur(${((1 - p) * 10).toFixed(1)}px)`;
   });
+
+  const bg = document.querySelector<HTMLElement>("[data-bg-zoom]");
+  if (bg) {
+    const t = clamp(window.scrollY / Math.max(1, document.documentElement.scrollHeight - vh));
+    bg.style.transform = `translate3d(0, ${(-t * 3).toFixed(2)}%, 0) scale(${(1 + t * 0.3).toFixed(4)})`;
+  }
 }
 
 export default function SmoothScroll() {
@@ -66,8 +62,11 @@ export default function SmoothScroll() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    // Chrome/Edge/Android/Safari 26+: the CSS does the animating, JS only smooths the wheel.
+    const native = CSS.supports("animation-timeline", "view()");
+
     lastSegment = Math.floor(window.scrollY / (window.innerHeight * STEP_SCREENS));
-    const lenis = new Lenis({ lerp: 0.09, anchors: true });
+    const lenis = new Lenis({ lerp: 0.1, anchors: true });
     let raf = 0;
     let frame = 0;
     const loop = (t: number) => {
@@ -76,35 +75,41 @@ export default function SmoothScroll() {
     };
     raf = requestAnimationFrame(loop);
 
-    const schedule = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(applyFx);
+    const onScroll = () => {
+      trackBackgroundStep();
+      if (!native) {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(applyFxFallback);
+      }
     };
-    lenis.on("scroll", schedule);
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
+    lenis.on("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
 
-    // pick up cards that appear/disappear when filters change
-    const mo = new MutationObserver(schedule);
-    mo.observe(document.body, { childList: true, subtree: true });
-    schedule();
+    let mo: MutationObserver | undefined;
+    if (!native) {
+      window.addEventListener("resize", onScroll);
+      mo = new MutationObserver(onScroll); // cards appear/disappear when filters change
+      mo.observe(document.body, { childList: true, subtree: true });
+      onScroll();
+    }
 
     return () => {
       cancelAnimationFrame(raf);
       cancelAnimationFrame(frame);
       lenis.destroy();
-      mo.disconnect();
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
+      mo?.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       document.querySelectorAll<HTMLElement>("[data-fx]").forEach((el) => {
-        el.style.opacity = el.style.filter = el.style.transform = "";
+        el.style.removeProperty("opacity");
+        el.style.removeProperty("transform");
+        el.style.removeProperty("filter");
       });
-      const bg = document.querySelector<HTMLElement>("[data-bg-zoom]");
-      if (bg) bg.style.transform = "";
+      document.querySelector<HTMLElement>("[data-bg-zoom]")?.style.removeProperty("transform");
     };
   }, []);
 
-  // new page: start at the top and re-measure once layout settles
+  // new page: re-measure once layout settles
   useEffect(() => {
     const t = setTimeout(() => window.dispatchEvent(new Event("resize")), 120);
     return () => clearTimeout(t);
