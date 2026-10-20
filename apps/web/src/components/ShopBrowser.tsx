@@ -70,10 +70,11 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-[230px_1fr]">
-      {/* ---- filters ---- */}
-      <aside data-fx="blur">
-        <div className="flex gap-2 md:block">
+    <div className="grid gap-x-6 gap-y-4 md:grid-cols-[230px_1fr]">
+      {/* Search + count/sort stay pinned under the header while scrolling on phones;
+          on desktop they are laid out as normal grid cells (md:contents). */}
+      <div className="sticky top-[var(--header-h)] z-20 -mx-4 space-y-3 border-b border-line bg-cream/90 px-4 py-3 backdrop-blur md:contents">
+        <div className="flex gap-2 md:col-start-1 md:row-start-1 md:block">
           <input
             className="input"
             type="search"
@@ -91,7 +92,24 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
           </button>
         </div>
 
-        <div className={`${open ? "block" : "hidden"} mt-4 space-y-3 rounded-2xl border border-line bg-white/90 p-4 md:block`}>
+        <div className="flex items-center justify-between gap-3 md:col-start-2 md:row-start-1">
+          <p className="text-sm text-muted">
+            {shown.length} {t.results}
+          </p>
+          <label className="flex items-center gap-2 text-sm">
+            <span className="text-muted">{t.sortBy}</span>
+            <select className="input !w-auto !py-1.5" value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
+              <option value="new">{t.sortNew}</option>
+              <option value="low">{t.sortLow}</option>
+              <option value="high">{t.sortHigh}</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      {/* ---- filters ---- */}
+      <aside data-fx="blur" className={`${open ? "" : "hidden"} md:col-start-1 md:row-start-2 md:block`}>
+        <div className={`${open ? "block" : "hidden"} space-y-3 rounded-2xl border border-line bg-white/90 p-4 md:block`}>
           <div>
             <label className="label">{t.show}</label>
             <select className="input" value={kind} onChange={(e) => setKind(e.target.value as Kind | "all")}>
@@ -131,21 +149,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
       </aside>
 
       {/* ---- results ---- */}
-      <section>
-        <div data-fx="blur" className="mb-4 flex items-center justify-between gap-3">
-          <p className="text-sm text-muted">
-            {shown.length} {t.results}
-          </p>
-          <label className="flex items-center gap-2 text-sm">
-            <span className="text-muted">{t.sortBy}</span>
-            <select className="input !w-auto !py-1.5" value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
-              <option value="new">{t.sortNew}</option>
-              <option value="low">{t.sortLow}</option>
-              <option value="high">{t.sortHigh}</option>
-            </select>
-          </label>
-        </div>
-
+      <section className="md:col-start-2 md:row-start-2">
         {shown.length === 0 ? (
           <div data-fx className="rounded-2xl border border-dashed border-line bg-white p-10 text-center">
             <p className="font-semibold">{t.noResults}</p>

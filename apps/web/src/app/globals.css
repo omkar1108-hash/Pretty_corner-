@@ -13,6 +13,7 @@
 }
 
 html {
+  --header-h: 60px; /* height of the sticky site header (the shop filter bar pins below it) */
   background: var(--color-cream);
   color: var(--color-ink);
   -webkit-tap-highlight-color: transparent;
