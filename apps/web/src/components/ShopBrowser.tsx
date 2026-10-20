@@ -73,7 +73,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
     <div className="grid gap-x-6 gap-y-4 md:grid-cols-[230px_1fr]">
       {/* Search + count/sort stay pinned under the header while scrolling on phones;
           on desktop they are laid out as normal grid cells (md:contents). */}
-      <div className="sticky top-[var(--header-h)] z-20 -mx-4 space-y-3 border-b border-line bg-cream/90 px-4 py-3 backdrop-blur md:contents">
+      <div className="sticky top-[var(--header-h)] z-20 -mx-4 space-y-3 px-4 py-3 md:contents">
         <div className="flex gap-2 md:col-start-1 md:row-start-1 md:block">
           <input
             className="input"
