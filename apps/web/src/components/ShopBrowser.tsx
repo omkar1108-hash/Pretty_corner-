@@ -89,6 +89,46 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
     </div>
   );
 
+  const panel = (
+    <div className="space-y-3 rounded-2xl border border-line bg-white p-4">
+      <div>
+        <label className="label">{t.show}</label>
+        <Dropdown value={kind} onChange={(v) => setKind(v as Kind | "all")}>
+          <option value="all">{t.kindAll}</option>
+          <option value="product">{t.kindProduct}</option>
+          <option value="supply">{t.kindSupply}</option>
+        </Dropdown>
+      </div>
+
+      <Select all={t.all} label={t.material} value={material} onChange={setMaterial}>
+        {materials.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+      </Select>
+      <Select all={t.all} label={t.type} value={type} onChange={setType}>
+        {types.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+      </Select>
+      <Select all={t.all} label={t.size} value={size} onChange={setSize}>
+        {sizes.map((s) => <option key={s}>{s}</option>)}
+      </Select>
+      <Select all={t.all} label={t.color} value={color} onChange={setColor}>
+        {colors.map((s) => <option key={s}>{s}</option>)}
+      </Select>
+
+      <div>
+        <label className="label">{t.price} (₹)</label>
+        <div className="flex gap-2">
+          <input className="input" inputMode="numeric" placeholder={t.minPrice} value={min} onChange={(e) => setMin(e.target.value.replace(/\D/g, ""))} />
+          <input className="input" inputMode="numeric" placeholder={t.maxPrice} value={max} onChange={(e) => setMax(e.target.value.replace(/\D/g, ""))} />
+        </div>
+      </div>
+
+      {active > 0 && (
+        <button type="button" className="w-full text-sm font-semibold text-rose underline" onClick={clear}>
+          {t.clear}
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div className="shop-grid grid gap-x-6 gap-y-4 md:grid-cols-[230px_1fr] md:items-start">
       {/* PHONE: one bar (search + Filters button + count/sort) pinned under the header. */}
@@ -105,50 +145,17 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
           </button>
         </div>
         {sortRow}
+        {open && (
+          <div className="no-scrollbar max-h-[calc(100svh-var(--header-h)-17rem)] overflow-y-auto rounded-2xl">{panel}</div>
+        )}
       </div>
 
       {/* DESKTOP: the left column (search + filters) is pinned while the products scroll. */}
       <aside
-        className={`${open ? "" : "hidden"} md:sticky md:top-[calc(var(--header-h)+1rem)] md:block md:max-h-[calc(100vh-var(--header-h)-2rem)] md:overflow-y-auto md:p-1 no-scrollbar shop-pin`}
+        className={`hidden md:sticky md:top-[calc(var(--header-h)+1rem)] md:block md:max-h-[calc(100vh-var(--header-h)-2rem)] md:overflow-y-auto md:p-1 no-scrollbar shop-pin`}
       >
         <div className="mb-4 hidden md:block">{searchInput}</div>
-        <div className={`${open ? "block" : "hidden"} space-y-3 rounded-2xl border border-line bg-white p-4 md:block`}>
-          <div>
-            <label className="label">{t.show}</label>
-            <Dropdown value={kind} onChange={(v) => setKind(v as Kind | "all")}>
-              <option value="all">{t.kindAll}</option>
-              <option value="product">{t.kindProduct}</option>
-              <option value="supply">{t.kindSupply}</option>
-            </Dropdown>
-          </div>
-
-          <Select all={t.all} label={t.material} value={material} onChange={setMaterial}>
-            {materials.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </Select>
-          <Select all={t.all} label={t.type} value={type} onChange={setType}>
-            {types.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </Select>
-          <Select all={t.all} label={t.size} value={size} onChange={setSize}>
-            {sizes.map((s) => <option key={s}>{s}</option>)}
-          </Select>
-          <Select all={t.all} label={t.color} value={color} onChange={setColor}>
-            {colors.map((s) => <option key={s}>{s}</option>)}
-          </Select>
-
-          <div>
-            <label className="label">{t.price} (₹)</label>
-            <div className="flex gap-2">
-              <input className="input" inputMode="numeric" placeholder={t.minPrice} value={min} onChange={(e) => setMin(e.target.value.replace(/\D/g, ""))} />
-              <input className="input" inputMode="numeric" placeholder={t.maxPrice} value={max} onChange={(e) => setMax(e.target.value.replace(/\D/g, ""))} />
-            </div>
-          </div>
-
-          {active > 0 && (
-            <button type="button" className="w-full text-sm font-semibold text-rose underline" onClick={clear}>
-              {t.clear}
-            </button>
-          )}
-        </div>
+        {panel}
       </aside>
 
       {/* ---- results ---- */}
