@@ -37,6 +37,7 @@ export default function Dropdown({
   className = "input",
   align = "left",
   label,
+  prefix,
 }: {
   id?: string;
   value: string;
@@ -45,6 +46,8 @@ export default function Dropdown({
   className?: string;
   align?: "left" | "right";
   label?: string;
+  /** small muted name shown inside the button, e.g. "Material: All" */
+  prefix?: string;
 }) {
   const options = useMemo(() => readOptions(children), [children]);
   const [open, setOpen] = useState(false);
@@ -139,7 +142,10 @@ export default function Dropdown({
         onKeyDown={onKey}
         className={`${className} flex cursor-pointer items-center justify-between gap-2 text-left`}
       >
-        <span className={`truncate ${isPlaceholder && selected?.value === "" ? "text-muted" : ""}`}>{selected?.label ?? ""}</span>
+        <span className={`truncate ${isPlaceholder && selected?.value === "" && !prefix ? "text-muted" : ""}`}>
+          {prefix && <span className="text-muted">{prefix}: </span>}
+          {selected?.label ?? ""}
+        </span>
         <svg
           width="14"
           height="14"
@@ -160,6 +166,7 @@ export default function Dropdown({
         createPortal(
           <div
             ref={list}
+            data-lenis-prevent
             role="listbox"
             style={{ position: "fixed", top: pos.top, bottom: pos.bottom, left: pos.left, width: pos.width, maxHeight: pos.maxH }}
             className="dropdown-pop z-[100] overflow-y-auto rounded-2xl border border-line bg-white p-1.5 shadow-xl shadow-rose/15"

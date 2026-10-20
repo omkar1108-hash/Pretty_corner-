@@ -10,13 +10,10 @@ type Sort = "new" | "low" | "high";
 
 function Select({ label, all, value, onChange, children }: { label: string; all: string; value: string; onChange: (v: string) => void; children: React.ReactNode }) {
   return (
-    <div>
-      <label className="label">{label}</label>
-      <Dropdown value={value} onChange={onChange}>
-        <option value="">{all}</option>
-        {children}
-      </Dropdown>
-    </div>
+    <Dropdown prefix={label} value={value} onChange={onChange}>
+      <option value="">{all}</option>
+      {children}
+    </Dropdown>
   );
 }
 
@@ -71,7 +68,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
   };
 
   const searchInput = (
-    <input className="input" type="search" placeholder={t.search} value={q} onChange={(e) => setQ(e.target.value)} />
+    <input className="input md:!py-2" type="search" placeholder={t.search} value={q} onChange={(e) => setQ(e.target.value)} />
   );
   const sortRow = (
     <div className="flex items-center justify-between gap-3">
@@ -90,15 +87,12 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
   );
 
   const panel = (
-    <div className="space-y-3 rounded-2xl border border-line bg-white p-4">
-      <div>
-        <label className="label">{t.show}</label>
-        <Dropdown value={kind} onChange={(v) => setKind(v as Kind | "all")}>
-          <option value="all">{t.kindAll}</option>
-          <option value="product">{t.kindProduct}</option>
-          <option value="supply">{t.kindSupply}</option>
-        </Dropdown>
-      </div>
+    <div className="space-y-3 rounded-2xl border border-line bg-white p-4 md:space-y-2 md:p-3 md:text-sm md:[&_.input]:px-3 md:[&_.input]:py-1.5 md:[&_.input]:text-sm">
+      <Dropdown prefix={t.show} value={kind} onChange={(v) => setKind(v as Kind | "all")}>
+        <option value="all">{t.kindAll}</option>
+        <option value="product">{t.kindProduct}</option>
+        <option value="supply">{t.kindSupply}</option>
+      </Dropdown>
 
       <Select all={t.all} label={t.material} value={material} onChange={setMaterial}>
         {materials.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -113,12 +107,9 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
         {colors.map((s) => <option key={s}>{s}</option>)}
       </Select>
 
-      <div>
-        <label className="label">{t.price} (₹)</label>
-        <div className="flex gap-2">
-          <input className="input" inputMode="numeric" placeholder={t.minPrice} value={min} onChange={(e) => setMin(e.target.value.replace(/\D/g, ""))} />
-          <input className="input" inputMode="numeric" placeholder={t.maxPrice} value={max} onChange={(e) => setMax(e.target.value.replace(/\D/g, ""))} />
-        </div>
+      <div className="flex gap-2">
+          <input className="input" aria-label={`${t.price} ${t.minPrice}`} inputMode="numeric" placeholder={`₹ ${t.minPrice}`} value={min} onChange={(e) => setMin(e.target.value.replace(/\D/g, ""))} />
+          <input className="input" aria-label={`${t.price} ${t.maxPrice}`} inputMode="numeric" placeholder={`₹ ${t.maxPrice}`} value={max} onChange={(e) => setMax(e.target.value.replace(/\D/g, ""))} />
       </div>
 
       {active > 0 && (
@@ -146,12 +137,13 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
         </div>
         {sortRow}
         {open && (
-          <div className="no-scrollbar max-h-[calc(100svh-var(--header-h)-17rem)] overflow-y-auto rounded-2xl">{panel}</div>
+          <div data-lenis-prevent className="no-scrollbar max-h-[calc(100svh-var(--header-h)-17rem)] overflow-y-auto rounded-2xl">{panel}</div>
         )}
       </div>
 
       {/* DESKTOP: the left column (search + filters) is pinned while the products scroll. */}
       <aside
+        data-lenis-prevent
         className={`hidden md:sticky md:top-[calc(var(--header-h)+1rem)] md:block md:max-h-[calc(100vh-var(--header-h)-2rem)] md:overflow-y-auto md:p-1 no-scrollbar shop-pin`}
       >
         <div className="mb-4 hidden md:block">{searchInput}</div>
