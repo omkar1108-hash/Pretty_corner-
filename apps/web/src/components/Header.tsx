@@ -1,5 +1,6 @@
 "use client";
 
+import Dropdown from "./Dropdown";
 import Link from "next/link";
 import { useLang, useT } from "./LanguageProvider";
 import { LANGS, LANG_LABELS } from "@/lib/i18n";
@@ -23,18 +24,19 @@ export default function Header() {
           <Link href="/custom" className="hidden whitespace-nowrap rounded-full px-2 py-1.5 hover:bg-blush sm:block sm:px-3">
             {t.navCustom}
           </Link>
-          <select
-            aria-label="Language"
+          <Dropdown
+            label="Language"
             value={lang}
-            onChange={(e) => setLang(e.target.value as typeof lang)}
-            className="ml-1 rounded-full border border-line bg-white px-1.5 py-1.5 text-sm"
+            onChange={(v) => setLang(v as typeof lang)}
+            align="right"
+            className="ml-1 !w-auto rounded-full border border-line bg-white py-1.5 pl-3 pr-2.5 text-sm"
           >
             {LANGS.map((l) => (
               <option key={l} value={l}>
                 {LANG_LABELS[l]}
               </option>
             ))}
-          </select>
+          </Dropdown>
         </nav>
       </div>
     </header>

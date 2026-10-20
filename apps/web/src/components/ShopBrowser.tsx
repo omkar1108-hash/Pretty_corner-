@@ -1,5 +1,6 @@
 "use client";
 
+import Dropdown from "./Dropdown";
 import { useMemo, useState } from "react";
 import type { Catalog, Kind } from "@/lib/types";
 import { useT } from "./LanguageProvider";
@@ -11,10 +12,10 @@ function Select({ label, all, value, onChange, children }: { label: string; all:
   return (
     <div>
       <label className="label">{label}</label>
-      <select className="input" value={value} onChange={(e) => onChange(e.target.value)}>
+      <Dropdown value={value} onChange={onChange}>
         <option value="">{all}</option>
         {children}
-      </select>
+      </Dropdown>
     </div>
   );
 }
@@ -98,11 +99,11 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
           </p>
           <label className="flex items-center gap-2 text-sm">
             <span className="text-muted rounded-full border border-line bg-white px-3 py-1.5">{t.sortBy}</span>
-            <select className="input !w-auto !py-1.5" value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
+            <Dropdown className="input !w-auto !py-1.5" align="right" value={sort} onChange={(v) => setSort(v as Sort)}>
               <option value="new">{t.sortNew}</option>
               <option value="low">{t.sortLow}</option>
               <option value="high">{t.sortHigh}</option>
-            </select>
+            </Dropdown>
           </label>
         </div>
       </div>
@@ -112,11 +113,11 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
         <div className={`${open ? "block" : "hidden"} space-y-3 rounded-2xl border border-line bg-white/90 p-4 md:block`}>
           <div>
             <label className="label">{t.show}</label>
-            <select className="input" value={kind} onChange={(e) => setKind(e.target.value as Kind | "all")}>
+            <Dropdown value={kind} onChange={(v) => setKind(v as Kind | "all")}>
               <option value="all">{t.kindAll}</option>
               <option value="product">{t.kindProduct}</option>
               <option value="supply">{t.kindSupply}</option>
-            </select>
+            </Dropdown>
           </div>
 
           <Select all={t.all} label={t.material} value={material} onChange={setMaterial}>

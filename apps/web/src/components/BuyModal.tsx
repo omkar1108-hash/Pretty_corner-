@@ -1,5 +1,6 @@
 "use client";
 
+import Dropdown from "./Dropdown";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Product } from "@/lib/types";
@@ -77,12 +78,12 @@ export default function BuyModal({ product, onClose }: { product: Product; onClo
           </div>
           <div>
             <label className="label" htmlFor="buy-station">{t.pickupStation}</label>
-            <select id="buy-station" className="input" value={station} onChange={(e) => setStation(e.target.value)}>
+            <Dropdown id="buy-station" value={station} onChange={setStation}>
               <option value="">{t.chooseStation}</option>
               {STATIONS.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
-            </select>
+            </Dropdown>
           </div>
         </div>
 

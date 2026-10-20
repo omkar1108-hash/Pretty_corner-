@@ -1,5 +1,6 @@
 "use client";
 
+import Dropdown from "./Dropdown";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Category } from "@/lib/types";
 import { MAX_CUSTOM_IMAGES, STATIONS } from "@/lib/config";
@@ -79,24 +80,24 @@ export default function CustomForm({ materials, types }: { materials: Category[]
         </div>
         <div>
           <label className="label" htmlFor="c-station">{t.pickupStation}</label>
-          <select id="c-station" className="input" value={station} onChange={(e) => setStation(e.target.value)}>
+          <Dropdown id="c-station" value={station} onChange={setStation}>
             <option value="">{t.chooseStation}</option>
             {STATIONS.map((s) => <option key={s}>{s}</option>)}
-          </select>
+          </Dropdown>
         </div>
         <div>
           <label className="label" htmlFor="c-material">{t.material}</label>
-          <select id="c-material" className="input" value={material} onChange={(e) => setMaterial(e.target.value)}>
+          <Dropdown id="c-material" value={material} onChange={setMaterial}>
             <option value="">{t.anyMaterial}</option>
             {materials.map((m) => <option key={m.id}>{m.name}</option>)}
-          </select>
+          </Dropdown>
         </div>
         <div>
           <label className="label" htmlFor="c-type">{t.type}</label>
-          <select id="c-type" className="input" value={type} onChange={(e) => setType(e.target.value)}>
+          <Dropdown id="c-type" value={type} onChange={setType}>
             <option value="">{t.anyMaterial}</option>
             {types.map((m) => <option key={m.id}>{m.name}</option>)}
-          </select>
+          </Dropdown>
         </div>
       </div>
 
