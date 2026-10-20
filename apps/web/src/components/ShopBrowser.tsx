@@ -70,47 +70,49 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
     setKind("all"); setMaterial(""); setType(""); setSize(""); setColor(""); setMin(""); setMax("");
   };
 
+  const searchInput = (
+    <input className="input" type="search" placeholder={t.search} value={q} onChange={(e) => setQ(e.target.value)} />
+  );
+  const sortRow = (
+    <div className="flex items-center justify-between gap-3">
+      <p className="rounded-full border border-line bg-white px-3 py-1.5 text-sm text-muted">
+        {shown.length} {t.results}
+      </p>
+      <label className="flex items-center gap-2 text-sm">
+        <span className="rounded-full border border-line bg-white px-3 py-1.5 text-muted">{t.sortBy}</span>
+        <Dropdown className="input !w-auto !py-1.5" align="right" value={sort} onChange={(v) => setSort(v as Sort)}>
+          <option value="new">{t.sortNew}</option>
+          <option value="low">{t.sortLow}</option>
+          <option value="high">{t.sortHigh}</option>
+        </Dropdown>
+      </label>
+    </div>
+  );
+
   return (
-    <div className="grid gap-x-6 gap-y-4 md:grid-cols-[230px_1fr]">
-      {/* Search + count/sort stay pinned under the header while scrolling on phones;
-          on desktop they are laid out as normal grid cells (md:contents). */}
-      <div className="sticky top-[var(--header-h)] z-20 -mx-4 space-y-3 px-4 py-3 md:contents">
-        <div className="flex gap-2 md:col-start-1 md:row-start-1 md:block">
-          <input
-            className="input"
-            type="search"
-            placeholder={t.search}
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+    <div className="grid gap-x-6 gap-y-4 md:grid-cols-[230px_1fr] md:items-start">
+      {/* PHONE: one bar (search + Filters button + count/sort) pinned under the header. */}
+      <div className="sticky top-[var(--header-h)] z-20 -mx-4 space-y-3 px-4 py-3 md:hidden">
+        <div className="flex gap-2">
+          {searchInput}
           <button
             type="button"
-            className="btn btn-ghost whitespace-nowrap md:hidden"
+            className="btn btn-ghost whitespace-nowrap"
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
           >
             {t.filters}{active > 0 && ` (${active})`}
           </button>
         </div>
-
-        <div className="flex items-center justify-between gap-3 md:col-start-2 md:row-start-1">
-          <p className="text-sm text-muted rounded-full border border-line bg-white px-3 py-1.5">
-            {shown.length} {t.results}
-          </p>
-          <label className="flex items-center gap-2 text-sm">
-            <span className="text-muted rounded-full border border-line bg-white px-3 py-1.5">{t.sortBy}</span>
-            <Dropdown className="input !w-auto !py-1.5" align="right" value={sort} onChange={(v) => setSort(v as Sort)}>
-              <option value="new">{t.sortNew}</option>
-              <option value="low">{t.sortLow}</option>
-              <option value="high">{t.sortHigh}</option>
-            </Dropdown>
-          </label>
-        </div>
+        {sortRow}
       </div>
 
-      {/* ---- filters ---- */}
-      <aside data-fx="blur" className={`${open ? "" : "hidden"} md:col-start-1 md:row-start-2 md:block`}>
-        <div className={`${open ? "block" : "hidden"} space-y-3 rounded-2xl border border-line bg-white/90 p-4 md:block`}>
+      {/* DESKTOP: the left column (search + filters) is pinned while the products scroll. */}
+      <aside
+        className={`${open ? "" : "hidden"} md:sticky md:top-[calc(var(--header-h)+1rem)] md:block md:max-h-[calc(100vh-var(--header-h)-2rem)] md:overflow-y-auto md:p-1`}
+      >
+        <div className="mb-4 hidden md:block">{searchInput}</div>
+        <div className={`${open ? "block" : "hidden"} space-y-3 rounded-2xl border border-line bg-white p-4 md:block`}>
           <div>
             <label className="label">{t.show}</label>
             <Dropdown value={kind} onChange={(v) => setKind(v as Kind | "all")}>
@@ -150,7 +152,8 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
       </aside>
 
       {/* ---- results ---- */}
-      <section className="md:col-start-2 md:row-start-2">
+      <section>
+        <div className="sticky top-[calc(var(--header-h)+1rem)] z-20 mb-4 hidden md:block">{sortRow}</div>
         {shown.length === 0 ? (
           <div data-fx className="rounded-2xl border border-dashed border-line bg-white p-10 text-center">
             <p className="font-semibold">{t.noResults}</p>
