@@ -17,10 +17,10 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center text-sm font-semibold sm:gap-4">
-          <Link href="/#shop" className="whitespace-nowrap rounded-full px-2 py-1.5 hover:bg-blush sm:px-3">
+          <Link href="/#shop" className="hidden whitespace-nowrap rounded-full px-2 py-1.5 hover:bg-blush sm:block sm:px-3">
             {t.navShop}
           </Link>
-          <Link href="/custom" className="whitespace-nowrap rounded-full px-2 py-1.5 hover:bg-blush sm:px-3">
+          <Link href="/custom" className="hidden whitespace-nowrap rounded-full px-2 py-1.5 hover:bg-blush sm:block sm:px-3">
             {t.navCustom}
           </Link>
           <select

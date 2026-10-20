@@ -1,4 +1,5 @@
 import BackgroundStage from "@/components/BackgroundStage";
+import BottomNav from "@/components/BottomNav";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -22,6 +23,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <Header />
       <main>{children}</main>
       <Footer />
+      <BottomNav />
     </>
   );
 }

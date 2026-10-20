@@ -7,6 +7,9 @@ import { usePathname } from "next/navigation";
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
+let lastSegment = 0;
+const STEP_SCREENS = 1.5; // change the background picture every ~1.5 screens of scrolling
+
 const MAX_BLUR = 10; // px
 const DRIFT = 28; // px
 
@@ -25,6 +28,13 @@ function applyFx() {
     const range = Math.max(1, document.documentElement.scrollHeight - vh);
     const t = clamp(window.scrollY / range);
     bg.style.transform = `translate3d(0, ${(-t * 3).toFixed(2)}%, 0) scale(${(1 + t * 0.3).toFixed(4)})`;
+  }
+
+  // Scrolling through the page also moves the background to the next / previous picture.
+  const segment = Math.floor(window.scrollY / (vh * STEP_SCREENS));
+  if (segment !== lastSegment) {
+    window.dispatchEvent(new CustomEvent("bg-step", { detail: segment > lastSegment ? 1 : -1 }));
+    lastSegment = segment;
   }
   const zone = vh * 0.3;
 
@@ -56,6 +66,7 @@ export default function SmoothScroll() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    lastSegment = Math.floor(window.scrollY / (window.innerHeight * STEP_SCREENS));
     const lenis = new Lenis({ lerp: 0.09, anchors: true });
     let raf = 0;
     let frame = 0;

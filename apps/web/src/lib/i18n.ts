@@ -3,6 +3,7 @@ export type Lang = (typeof LANGS)[number];
 export const LANG_LABELS: Record<Lang, string> = { en: "English", hi: "हिन्दी", mr: "मराठी" };
 
 const en = {
+  navHome: "Home",
   navShop: "Shop",
   navCustom: "Custom order",
   heroTitle: "Handmade with love",
@@ -89,6 +90,7 @@ const en = {
 export type Dict = typeof en;
 
 const hi: Dict = {
+  navHome: "होम",
   navShop: "दुकान",
   navCustom: "कस्टम ऑर्डर",
   heroTitle: "प्यार से हाथ से बना",
@@ -173,6 +175,7 @@ const hi: Dict = {
 };
 
 const mr: Dict = {
+  navHome: "मुख्यपृष्ठ",
   navShop: "दुकान",
   navCustom: "कस्टम ऑर्डर",
   heroTitle: "प्रेमाने हाताने बनवलेले",
