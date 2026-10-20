@@ -11,12 +11,12 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-cream/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-        <Link href="/" className="whitespace-nowrap font-display text-xl font-bold italic text-rose sm:text-2xl">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-3 py-3 sm:px-4">
+        <Link href="/" className="whitespace-nowrap font-display text-lg font-bold italic text-rose sm:text-2xl">
           {SHOP_NAME}
         </Link>
 
-        <nav className="flex items-center gap-1 text-sm font-semibold sm:gap-4">
+        <nav className="flex items-center text-sm font-semibold sm:gap-4">
           <Link href="/#shop" className="whitespace-nowrap rounded-full px-2 py-1.5 hover:bg-blush sm:px-3">
             {t.navShop}
           </Link>
@@ -27,7 +27,7 @@ export default function Header() {
             aria-label="Language"
             value={lang}
             onChange={(e) => setLang(e.target.value as typeof lang)}
-            className="rounded-full border border-line bg-white px-2 py-1.5 text-sm"
+            className="ml-1 rounded-full border border-line bg-white px-1.5 py-1.5 text-sm"
           >
             {LANGS.map((l) => (
               <option key={l} value={l}>
