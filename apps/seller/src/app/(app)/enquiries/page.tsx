@@ -44,10 +44,10 @@ export default function EnquiriesPage() {
 
       <ul className="mt-4 space-y-3">
         {rows?.map((r) => (
-          <li key={r.id} className={`rounded-2xl border bg-white p-4 ${r.status === "new" ? "border-rose" : "border-line opacity-70"}`}>
+          <li key={r.id} className={`rounded-2xl border bg-white p-4 ${r.status === "new" ? "border-brand" : "border-line opacity-70"}`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${r.kind === "custom" ? "bg-gold text-white" : "bg-blush text-rose"}`}>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${r.kind === "custom" ? "bg-gold text-white" : "bg-tint text-brand"}`}>
                   {r.kind === "custom" ? "Custom" : "Order"}
                 </span>
                 <span className="font-semibold">{r.name}</span>
@@ -77,7 +77,7 @@ export default function EnquiriesPage() {
             )}
 
             <div className="mt-3 flex gap-3 text-sm">
-              <button className="font-semibold text-rose hover:underline" onClick={() => setStatus(r, r.status === "new" ? "done" : "new")}>
+              <button className="font-semibold text-brand hover:underline" onClick={() => setStatus(r, r.status === "new" ? "done" : "new")}>
                 {r.status === "new" ? "Mark as done" : "Mark as new"}
               </button>
               <button className="text-muted hover:text-red-700" onClick={() => remove(r)}>Delete</button>

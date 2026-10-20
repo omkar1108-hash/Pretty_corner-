@@ -4,14 +4,19 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { formatPrice } from "@/lib/format";
-import type { Product } from "@/lib/types";
 
-type Row = Pick<Product, "id" | "name" | "price" | "kind" | "images" | "available"> & {
+type Row = {
+  id: string;
+  name: string;
+  price: number | string;
+  kind: "product" | "supply";
+  images: string[];
+  available: boolean;
   material: { name: string } | null;
   type: { name: string } | null;
 };
 
-export default function AdminProducts() {
+export default function ProductsPage() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [error, setError] = useState("");
 
@@ -41,7 +46,7 @@ export default function AdminProducts() {
     <>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Products</h1>
-        <Link href="/admin/products/new" className="btn btn-primary">+ Add product</Link>
+        <Link href="/products/new" className="btn btn-primary">+ Add product</Link>
       </div>
 
       {error && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
@@ -59,20 +64,20 @@ export default function AdminProducts() {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={r.images[0]} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
             ) : (
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-blush text-2xl">🎀</div>
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-tint text-2xl">🎀</div>
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{r.name}</p>
               <p className="truncate text-xs text-muted">
                 {[r.kind === "supply" ? "Crafting material" : null, r.type?.name, r.material?.name].filter(Boolean).join(" · ")}
               </p>
-              <p className="font-bold text-rose">{formatPrice(Number(r.price))}</p>
+              <p className="font-bold text-brand">{formatPrice(Number(r.price))}</p>
             </div>
             <div className="flex flex-col items-end gap-1 text-sm sm:flex-row sm:items-center sm:gap-3">
               <button onClick={() => toggle(r)} className={`rounded-full px-3 py-1 text-xs font-semibold ${r.available ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"}`}>
                 {r.available ? "Taking orders" : "Paused"}
               </button>
-              <Link href={`/admin/products/${r.id}`} className="font-semibold text-rose hover:underline">Edit</Link>
+              <Link href={`/products/${r.id}`} className="font-semibold text-brand hover:underline">Edit</Link>
               <button onClick={() => remove(r)} className="text-muted hover:text-red-700">Delete</button>
             </div>
           </li>

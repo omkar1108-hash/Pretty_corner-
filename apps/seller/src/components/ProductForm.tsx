@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
-import { uploadImage } from "@/lib/image";
+import { uploadProductImage } from "@/lib/image";
 import { SIZE_SUGGESTIONS } from "@/lib/config";
 import type { Category, Kind } from "@/lib/types";
 
@@ -81,7 +81,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
     setUploading(true);
     setError("");
     try {
-      const urls = await Promise.all(Array.from(list).map((f) => uploadImage("product-images", f)));
+      const urls = await Promise.all(Array.from(list).map((f) => uploadProductImage(f)));
       setImages((cur) => [...cur, ...urls]);
     } catch (e) {
       setError("Could not upload picture: " + (e as Error).message);
@@ -117,7 +117,7 @@ export default function ProductForm({ productId }: { productId?: string }) {
         ? await db.from("products").update(row).eq("id", productId)
         : await db.from("products").insert(row);
       if (error) throw error;
-      router.push("/admin");
+      router.push("/products");
     } catch (e) {
       setError("Could not save: " + (e as Error).message);
       setSaving(false);
@@ -127,14 +127,14 @@ export default function ProductForm({ productId }: { productId?: string }) {
   if (loading) return <p className="text-muted">Loading…</p>;
 
   return (
-    <form onSubmit={save} className="mx-auto max-w-2xl space-y-5 rounded-3xl border border-line bg-white p-5 sm:p-6">
+    <form onSubmit={save} className="mx-auto max-w-2xl space-y-5 card p-5 sm:p-6">
       <h1 className="text-2xl font-bold">{productId ? "Edit product" : "Add product"}</h1>
 
       <fieldset>
         <legend className="label">What are you adding?</legend>
         <div className="flex flex-wrap gap-2">
           {([["product", "Finished product"], ["supply", "Crafting material"]] as const).map(([v, label]) => (
-            <label key={v} className={`cursor-pointer rounded-full border px-4 py-2 text-sm font-semibold ${kind === v ? "border-rose bg-blush text-rose" : "border-line"}`}>
+            <label key={v} className={`cursor-pointer rounded-full border px-4 py-2 text-sm font-semibold ${kind === v ? "border-brand bg-tint text-brand" : "border-line"}`}>
               <input type="radio" className="sr-only" name="kind" checked={kind === v} onChange={() => setKind(v)} />
               {label}
             </label>
@@ -201,15 +201,15 @@ export default function ProductForm({ productId }: { productId?: string }) {
           {images.map((src, i) => (
             <div key={src} className="relative h-24 w-24">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className={`h-full w-full rounded-xl object-cover ${i === 0 ? "ring-2 ring-rose" : ""}`} />
+              <img src={src} alt="" className={`h-full w-full rounded-xl object-cover ${i === 0 ? "ring-2 ring-brand" : ""}`} />
               <div className="absolute inset-x-0 bottom-0 flex justify-between rounded-b-xl bg-black/50 px-1 text-xs text-white">
                 {i > 0 ? <button type="button" onClick={() => setImages((a) => { const b = [...a]; [b[i - 1], b[i]] = [b[i], b[i - 1]]; return b; })} aria-label="Move earlier">◀</button> : <span />}
                 {i < images.length - 1 ? <button type="button" onClick={() => setImages((a) => { const b = [...a]; [b[i + 1], b[i]] = [b[i], b[i + 1]]; return b; })} aria-label="Move later">▶</button> : <span />}
               </div>
-              <button type="button" aria-label="Remove picture" onClick={() => setImages((a) => a.filter((_, j) => j !== i))} className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-rose text-sm font-bold leading-6 text-white">×</button>
+              <button type="button" aria-label="Remove picture" onClick={() => setImages((a) => a.filter((_, j) => j !== i))} className="absolute -right-2 -top-2 h-6 w-6 rounded-full bg-brand text-sm font-bold leading-6 text-white">×</button>
             </div>
           ))}
-          <button type="button" disabled={uploading} onClick={() => fileInput.current?.click()} className="flex h-24 w-24 flex-col items-center justify-center rounded-xl border-2 border-dashed border-line text-sm font-semibold text-rose hover:bg-blush">
+          <button type="button" disabled={uploading} onClick={() => fileInput.current?.click()} className="flex h-24 w-24 flex-col items-center justify-center rounded-xl border-2 border-dashed border-line text-sm font-semibold text-brand hover:bg-tint">
             {uploading ? "Uploading…" : (<><span className="text-2xl leading-none">+</span>Add</>)}
           </button>
         </div>
@@ -217,14 +217,14 @@ export default function ProductForm({ productId }: { productId?: string }) {
       </div>
 
       <label className="flex items-center gap-2 text-sm font-semibold">
-        <input type="checkbox" checked={available} onChange={(e) => setAvailable(e.target.checked)} className="h-4 w-4 accent-[var(--color-rose)]" />
+        <input type="checkbox" checked={available} onChange={(e) => setAvailable(e.target.checked)} className="h-4 w-4 accent-[var(--color-brand)]" />
         Taking orders for this item
       </label>
 
       {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 
       <div className="flex gap-3">
-        <button type="button" className="btn btn-ghost" onClick={() => router.push("/admin")} disabled={saving}>Cancel</button>
+        <button type="button" className="btn btn-ghost" onClick={() => router.push("/products")} disabled={saving}>Cancel</button>
         <button className="btn btn-primary flex-1" disabled={saving || uploading}>{saving ? "Saving…" : "Save product"}</button>
       </div>
     </form>

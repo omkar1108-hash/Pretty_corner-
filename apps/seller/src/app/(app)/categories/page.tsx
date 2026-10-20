@@ -41,7 +41,7 @@ function CategoryList({ title, table, hint }: { title: string; table: Table; hin
   }
 
   return (
-    <section className="rounded-3xl border border-line bg-white p-5">
+    <section className="card p-5">
       <h2 className="text-lg font-bold">{title}</h2>
       <p className="text-sm text-muted">{hint}</p>
       <ul className="mt-3 divide-y divide-line">
@@ -49,7 +49,7 @@ function CategoryList({ title, table, hint }: { title: string; table: Table; hin
           <li key={c.id} className="flex items-center justify-between py-2">
             <span>{c.name}</span>
             <span className="flex gap-3 text-sm">
-              <button className="font-semibold text-rose hover:underline" onClick={() => rename(c)}>Rename</button>
+              <button className="font-semibold text-brand hover:underline" onClick={() => rename(c)}>Rename</button>
               <button className="text-muted hover:text-red-700" onClick={() => remove(c)}>Delete</button>
             </span>
           </li>
