@@ -73,7 +73,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
     <div className="grid gap-x-6 gap-y-4 md:grid-cols-[230px_1fr]">
       {/* Search + count/sort stay pinned under the header while scrolling on phones;
           on desktop they are laid out as normal grid cells (md:contents). */}
-      <div className="sticky top-[var(--header-h)] z-20 -mx-4 space-y-3 bg-cream/20 px-4 py-3 md:contents">
+      <div className="sticky top-[var(--header-h)] z-20 -mx-4 space-y-3 px-4 py-3 md:contents">
         <div className="flex gap-2 md:col-start-1 md:row-start-1 md:block">
           <input
             className="input"
@@ -93,11 +93,11 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
         </div>
 
         <div className="flex items-center justify-between gap-3 md:col-start-2 md:row-start-1">
-          <p className="text-sm text-muted">
+          <p className="text-sm text-muted rounded-full border border-line bg-white px-3 py-1.5">
             {shown.length} {t.results}
           </p>
           <label className="flex items-center gap-2 text-sm">
-            <span className="text-muted">{t.sortBy}</span>
+            <span className="text-muted rounded-full border border-line bg-white px-3 py-1.5">{t.sortBy}</span>
             <select className="input !w-auto !py-1.5" value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
               <option value="new">{t.sortNew}</option>
               <option value="low">{t.sortLow}</option>
