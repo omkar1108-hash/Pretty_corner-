@@ -116,3 +116,21 @@ body {
 /* styled dropdown list (components/Dropdown.tsx) */
 @keyframes dropdown-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
 .dropdown-pop { animation: dropdown-in 0.12s ease-out; }
+
+/* hide a scrollbar but keep the element scrollable (wheel / touch / keyboard) */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Desktop shop: the filters column and the count/sort row fade + grow in while the product
+   grid travels from the bottom of the screen to the middle, then stay pinned (see ShopBrowser).
+   Both start level with the top of the grid, so each one's own view() timeline matches it. */
+@keyframes shop-pin-in { from { opacity: 0; transform: translate3d(0, 36px, 0) scale(0.92); } to { opacity: 1; transform: none; } }
+@supports (animation-timeline: view()) {
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .shop-pin {
+      animation: shop-pin-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0px entry 50vh;
+    }
+  }
+}

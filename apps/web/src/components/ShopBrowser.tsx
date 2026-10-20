@@ -90,7 +90,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
   );
 
   return (
-    <div className="grid gap-x-6 gap-y-4 md:grid-cols-[230px_1fr] md:items-start">
+    <div className="shop-grid grid gap-x-6 gap-y-4 md:grid-cols-[230px_1fr] md:items-start">
       {/* PHONE: one bar (search + Filters button + count/sort) pinned under the header. */}
       <div className="sticky top-[var(--header-h)] z-20 -mx-4 space-y-3 px-4 py-3 md:hidden">
         <div className="flex gap-2">
@@ -109,7 +109,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
 
       {/* DESKTOP: the left column (search + filters) is pinned while the products scroll. */}
       <aside
-        className={`${open ? "" : "hidden"} md:sticky md:top-[calc(var(--header-h)+1rem)] md:block md:max-h-[calc(100vh-var(--header-h)-2rem)] md:overflow-y-auto md:p-1`}
+        className={`${open ? "" : "hidden"} md:sticky md:top-[calc(var(--header-h)+1rem)] md:block md:max-h-[calc(100vh-var(--header-h)-2rem)] md:overflow-y-auto md:p-1 no-scrollbar shop-pin`}
       >
         <div className="mb-4 hidden md:block">{searchInput}</div>
         <div className={`${open ? "block" : "hidden"} space-y-3 rounded-2xl border border-line bg-white p-4 md:block`}>
@@ -153,7 +153,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
 
       {/* ---- results ---- */}
       <section>
-        <div className="sticky top-[calc(var(--header-h)+1rem)] z-20 mb-4 hidden md:block">{sortRow}</div>
+        <div className="shop-pin sticky top-[calc(var(--header-h)+1rem)] z-20 mb-4 hidden md:block">{sortRow}</div>
         {shown.length === 0 ? (
           <div data-fx className="rounded-2xl border border-dashed border-line bg-white p-10 text-center">
             <p className="font-semibold">{t.noResults}</p>
