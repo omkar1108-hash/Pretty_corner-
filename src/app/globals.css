@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fff8f4;
+  --color-blush: #fde8ee;
+  --color-rose: #c2185b;
+  --color-rose-dark: #9c1049;
+  --color-gold: #b8893b;
+  --color-ink: #3a2a30;
+  --color-muted: #7b6870;
+  --color-line: #f0d9e0;
+  --font-display: "Georgia", "Times New Roman", serif;
+}
+
+html {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans Devanagari", Roboto, sans-serif;
+  min-height: 100dvh;
+}
+
+@layer components {
+.input {
+  width: 100%;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 1rem;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--color-rose);
+  box-shadow: 0 0 0 3px rgb(194 24 91 / 0.15);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.65rem 1.4rem;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.05s;
+  cursor: pointer;
+}
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary { background: var(--color-rose); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--color-rose-dark); }
+.btn-ghost { background: #fff; color: var(--color-rose); border: 1px solid var(--color-line); }
+.btn-ghost:hover:not(:disabled) { background: var(--color-blush); }
+.btn-wa { background: #1fa855; color: #fff; }
+.btn-wa:hover:not(:disabled) { background: #178a45; }
+
+.label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--color-muted); margin-bottom: 0.3rem; }
+}
