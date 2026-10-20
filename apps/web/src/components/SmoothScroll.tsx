@@ -18,6 +18,14 @@ const DRIFT = 28; // px
  */
 function applyFx() {
   const vh = window.innerHeight;
+
+  // Background "dive": zoom in and drift up a little as you travel down the page.
+  const bg = document.querySelector<HTMLElement>("[data-bg-zoom]");
+  if (bg) {
+    const range = Math.max(1, document.documentElement.scrollHeight - vh);
+    const t = clamp(window.scrollY / range);
+    bg.style.transform = `translate3d(0, ${(-t * 3).toFixed(2)}%, 0) scale(${(1 + t * 0.3).toFixed(4)})`;
+  }
   const zone = vh * 0.3;
 
   document.querySelectorAll<HTMLElement>("[data-fx]").forEach((el) => {
@@ -80,6 +88,8 @@ export default function SmoothScroll() {
       document.querySelectorAll<HTMLElement>("[data-fx]").forEach((el) => {
         el.style.opacity = el.style.filter = el.style.transform = "";
       });
+      const bg = document.querySelector<HTMLElement>("[data-bg-zoom]");
+      if (bg) bg.style.transform = "";
     };
   }, []);
 

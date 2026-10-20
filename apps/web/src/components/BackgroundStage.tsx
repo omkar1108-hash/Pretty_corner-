@@ -36,13 +36,16 @@ export default function BackgroundStage({ images }: { images: string[] }) {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-cream">
-      {images.map((src, i) => (
-        <div
-          key={src}
-          className={`bg-slide ${i === active ? "is-active" : ""} ${i === leaving ? "is-leaving" : ""}`}
-          style={{ backgroundImage: `url("${src}")` }}
-        />
-      ))}
+      {/* SmoothScroll zooms this wrapper as the page scrolls ("diving in"), on top of the slow zoom of each slide */}
+      <div data-bg-zoom className="absolute inset-0 will-change-transform">
+        {images.map((src, i) => (
+          <div
+            key={src}
+            className={`bg-slide ${i === active ? "is-active" : ""} ${i === leaving ? "is-leaving" : ""}`}
+            style={{ backgroundImage: `url("${src}")` }}
+          />
+        ))}
+      </div>
       {/* soft pink wash + a little gold warmth at the top */}
       <div
         className="absolute inset-0"
