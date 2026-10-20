@@ -8,8 +8,8 @@ export default function Hero({ demo }: { demo: boolean }) {
   return (
     <>
       {demo && <div className="bg-gold px-4 py-2 text-center text-sm font-medium text-white">{t.demoBanner}</div>}
-      <section className="bg-gradient-to-b from-blush to-cream">
-        <div className="mx-auto max-w-6xl px-4 py-12 text-center sm:py-16">
+      <section>
+        <div data-fx className="mx-auto max-w-6xl px-4 py-12 text-center sm:py-20">
           <p className="text-sm font-semibold uppercase tracking-widest text-gold">{t.heroPickup}</p>
           <h1 className="mt-3 font-display text-4xl font-bold italic text-rose sm:text-6xl">{t.heroTitle}</h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-muted">{t.heroSub}</p>

@@ -12,7 +12,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const [buying, setBuying] = useState(false);
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition hover:shadow-md">
+    <article data-fx className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition hover:shadow-md">
       <Link href={`/product/${product.id}`} className="relative block aspect-square overflow-hidden bg-blush">
         {product.images[0] ? (
           // eslint-disable-next-line @next/next/no-img-element

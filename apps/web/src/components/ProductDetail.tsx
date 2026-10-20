@@ -35,7 +35,7 @@ export default function ProductDetail({ product }: { product: Product }) {
       <Link href="/#shop" className="text-sm font-semibold text-rose hover:underline">← {t.backToShop}</Link>
 
       <div className="mt-4 grid gap-8 md:grid-cols-2">
-        <div>
+        <div data-fx>
           <div className="aspect-square overflow-hidden rounded-3xl border border-line bg-blush">
             {product.images[active] ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -60,7 +60,7 @@ export default function ProductDetail({ product }: { product: Product }) {
           )}
         </div>
 
-        <div>
+        <div data-fx>
           {product.kind === "supply" && (
             <span className="rounded-full bg-gold px-3 py-1 text-xs font-semibold text-white">{t.supply}</span>
           )}

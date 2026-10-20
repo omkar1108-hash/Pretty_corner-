@@ -60,3 +60,30 @@ body {
 
 .label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--color-muted); margin-bottom: 0.3rem; }
 }
+
+/* ------------------------------------------------------------ living background */
+@keyframes kenburns {
+  from { transform: scale(1.04) translate3d(0, 0, 0); }
+  to   { transform: scale(1.24) translate3d(-1.5%, -1.2%, 0); }
+}
+
+.bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 2.2s ease-in-out;
+  will-change: opacity, transform;
+}
+.bg-slide.is-active { opacity: 1; }
+/* The outgoing slide keeps the same animation so it doesn't snap back while it fades. */
+.bg-slide.is-active,
+.bg-slide.is-leaving { animation: kenburns 16s ease-out forwards; }
+
+[data-fx] { will-change: opacity, transform, filter; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-slide.is-active, .bg-slide.is-leaving { animation: none; }
+  [data-fx] { will-change: auto; }
+}

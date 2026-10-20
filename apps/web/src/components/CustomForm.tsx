@@ -71,7 +71,7 @@ export default function CustomForm({ materials, types }: { materials: Category[]
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-3xl border border-line bg-white p-5 sm:p-6">
+    <form onSubmit={submit} data-fx className="space-y-4 rounded-3xl border border-line bg-white/95 p-5 sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="c-name">{t.yourName}</label>

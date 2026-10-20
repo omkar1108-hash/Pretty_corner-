@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Product } from "@/lib/types";
 import { STATIONS } from "@/lib/config";
 import { formatPrice } from "@/lib/format";
@@ -39,8 +40,9 @@ export default function BuyModal({ product, onClose }: { product: Product; onClo
     }
   }
 
-  return (
+  return createPortal(
     <div
+      data-lenis-prevent
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
       onClick={onClose}
     >
@@ -97,6 +99,7 @@ export default function BuyModal({ product, onClose }: { product: Product; onClo
         </div>
       </form>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }

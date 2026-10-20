@@ -72,7 +72,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
   return (
     <div className="grid gap-6 md:grid-cols-[230px_1fr]">
       {/* ---- filters ---- */}
-      <aside>
+      <aside data-fx>
         <div className="flex gap-2 md:block">
           <input
             className="input"
@@ -91,7 +91,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
           </button>
         </div>
 
-        <div className={`${open ? "block" : "hidden"} mt-4 space-y-3 rounded-2xl border border-line bg-white p-4 md:block`}>
+        <div className={`${open ? "block" : "hidden"} mt-4 space-y-3 rounded-2xl border border-line bg-white/90 p-4 md:block`}>
           <div>
             <label className="label">{t.show}</label>
             <select className="input" value={kind} onChange={(e) => setKind(e.target.value as Kind | "all")}>
@@ -132,7 +132,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
 
       {/* ---- results ---- */}
       <section>
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div data-fx className="mb-4 flex items-center justify-between gap-3">
           <p className="text-sm text-muted">
             {shown.length} {t.results}
           </p>
@@ -147,7 +147,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
         </div>
 
         {shown.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-line bg-white p-10 text-center">
+          <div data-fx className="rounded-2xl border border-dashed border-line bg-white p-10 text-center">
             <p className="font-semibold">{t.noResults}</p>
             <p className="mt-1 text-sm text-muted">{t.noResultsHint}</p>
           </div>

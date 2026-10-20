@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getSupabase, supabaseConfigured } from "./supabase";
 import { sampleCatalog } from "./sample-data";
 import type { Catalog, Product } from "./types";
@@ -17,7 +18,7 @@ const toProduct = (r: Row): Product => ({
   type: r.type?.name ?? null,
 });
 
-export async function getCatalog(): Promise<Catalog> {
+export const getCatalog = cache(async (): Promise<Catalog> => {
   if (!supabaseConfigured) return sampleCatalog();
 
   const db = getSupabase();
@@ -34,7 +35,7 @@ export async function getCatalog(): Promise<Catalog> {
     types: types.data ?? [],
     demo: false,
   };
-}
+});
 
 export async function getProduct(id: string): Promise<Product | null> {
   if (!supabaseConfigured) return sampleCatalog().products.find((p) => p.id === id) ?? null;
