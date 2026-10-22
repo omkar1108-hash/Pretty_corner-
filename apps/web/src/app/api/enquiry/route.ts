@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getProduct } from "@/lib/data";
 import { getSupabase, supabaseConfigured } from "@/lib/supabase";
-import { MAX_CUSTOM_IMAGES, STATIONS } from "@/lib/config";
+import { MAX_CUSTOM_IMAGES, STATIONS, WHATSAPP_NUMBER } from "@/lib/config";
 import { formatPrice } from "@/lib/format";
 import { absoluteUrl, customMessage, orderMessage, waLink, type OrderLine } from "@/lib/whatsapp";
 
@@ -140,7 +140,7 @@ export async function POST(req: Request) {
          <table cellspacing="0" cellpadding="0" style="border-collapse:collapse">${rows}</table>
          <p style="font-size:16px"><b>Total: ${formatPrice(total)}</b> (${pieces} ${pieces === 1 ? "item" : "items"})</p>
          <p>Name: <b>${esc(name)}</b><br>Pickup station: <b>${esc(station)}</b></p>
-         <p>The buyer is being redirected to WhatsApp (8655434260). Payment and pickup time are decided there.</p>`,
+         <p>The buyer is being redirected to WhatsApp (${WHATSAPP_NUMBER.replace(/^91/, "")}). Payment and pickup time are decided there.</p>`,
         [],
       ),
     ]);
@@ -180,7 +180,7 @@ export async function POST(req: Request) {
             Budget: ${custom.budget ? "₹" + esc(custom.budget) : "-"}</p>
          <p>${esc(custom.description).replace(/\n/g, "<br>")}</p>
          ${custom.images.map((u) => `<p><img src="${esc(u)}" width="240"></p>`).join("")}
-         <p>The buyer is being redirected to WhatsApp (8655434260). Payment and pickup time are decided there.</p>`,
+         <p>The buyer is being redirected to WhatsApp (${WHATSAPP_NUMBER.replace(/^91/, "")}). Payment and pickup time are decided there.</p>`,
         custom.images,
       ),
     ]);

@@ -53,7 +53,7 @@ A website can only open a chat with a pre-filled message; it cannot send a messa
 > आपके संदेश के लिए धन्यवाद! हम 24 घंटे के अंदर जवाब देंगे।
 > तुमच्या संदेशाबद्दल धन्यवाद! आम्ही 24 तासांत उत्तर देऊ.
 
-The number is `NEXT_PUBLIC_WHATSAPP_NUMBER` (currently `918655434260`).
+The number is `NEXT_PUBLIC_WHATSAPP_NUMBER` (currently `917499521677`).
 
 ### 4. Deploy (Vercel, free) — two projects from this one repo
 Create **two** Vercel projects, both from this repo:
