@@ -3,13 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 
+type OrderItem = { product: string; colour?: string; qty: number; price: number };
+
 type Enquiry = {
   id: string;
   kind: "order" | "custom";
   name: string;
   station: string;
   status: "new" | "done";
-  details: Record<string, string | number>;
+  details: Record<string, string | number | OrderItem[]>;
   images: string[];
   created_at: string;
 };
@@ -57,12 +59,23 @@ export default function EnquiriesPage() {
             </div>
 
             <dl className="mt-2 grid gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
-              {Object.entries(r.details).filter(([, v]) => v !== "" && v != null).map(([k, v]) => (
+              {Object.entries(r.details).filter(([k, v]) => k !== "items" && v !== "" && v != null).map(([k, v]) => (
                 <div key={k} className={k === "description" ? "sm:col-span-2" : ""}>
                   <dt className="inline capitalize text-muted">{k}: </dt>
-                  <dd className="inline whitespace-pre-line">{k === "price" || k === "budget" ? `₹${v}` : String(v)}</dd>
+                  <dd className="inline whitespace-pre-line">{k === "price" || k === "budget" || k === "total" ? `₹${v}` : String(v)}</dd>
                 </div>
               ))}
+              {Array.isArray(r.details.items) && (
+                <ul className="space-y-0.5 sm:col-span-2">
+                  {(r.details.items as OrderItem[]).map((it, i) => (
+                    <li key={i}>
+                      <b>{it.qty} ×</b> {it.product}
+                      {it.colour ? <span className="text-muted"> ({it.colour})</span> : null}
+                      <span className="text-muted"> · ₹{it.qty * it.price}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </dl>
 
             {r.images.length > 0 && (

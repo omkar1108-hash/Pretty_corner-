@@ -4,7 +4,10 @@ import { getProduct } from "@/lib/data";
 import { getSupabase, supabaseConfigured } from "@/lib/supabase";
 import { MAX_CUSTOM_IMAGES, STATIONS } from "@/lib/config";
 import { formatPrice } from "@/lib/format";
-import { absoluteUrl, customMessage, orderMessage, waLink } from "@/lib/whatsapp";
+import { absoluteUrl, customMessage, orderMessage, waLink, type OrderLine } from "@/lib/whatsapp";
+
+const MAX_ORDER_LINES = 20;
+const MAX_QTY_PER_LINE = 20;
 
 export const dynamic = "force-dynamic";
 
@@ -65,36 +68,84 @@ export async function POST(req: Request) {
   if (!(STATIONS as readonly string[]).includes(station))
     return NextResponse.json({ error: "Invalid station" }, { status: 400 });
 
-  // ------------------------------------------------------------ product order
+  // ------------------------------------------------------------ product order (one or more items)
   if (body.kind === "order") {
-    const product = await getProduct(clean(body.productId, 64));
-    if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    const raw: unknown[] = Array.isArray(body.items)
+      ? body.items
+      : body.productId
+        ? [{ productId: body.productId, color: body.color, qty: 1 }]
+        : [];
+    if (raw.length === 0) return NextResponse.json({ error: "Your cart is empty" }, { status: 400 });
+    if (raw.length > MAX_ORDER_LINES) return NextResponse.json({ error: "Too many items in one order" }, { status: 400 });
 
-    // if the seller listed colours for this product, the buyer must have chosen one of them
-    const color = clean(body.color, 40);
-    if (product.colors.length > 0 && !product.colors.includes(color))
-      return NextResponse.json({ error: "Please choose a colour" }, { status: 400 });
+    const lines: OrderLine[] = [];
+    for (const r of raw) {
+      const it = (r ?? {}) as Record<string, unknown>;
+      const product = await getProduct(clean(it.productId, 64));
+      if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      if (!product.available)
+        return NextResponse.json({ error: `${product.name} is not taking orders right now` }, { status: 400 });
+
+      // if the seller listed colours for this product, the buyer must have chosen one of them
+      let color = clean(it.color, 40);
+      if (product.colors.length > 0 && !product.colors.includes(color))
+        return NextResponse.json({ error: "Please choose a colour" }, { status: 400 });
+      if (product.colors.length === 0) color = "";
+
+      const qty = Math.floor(Number(it.qty));
+      if (!(qty >= 1 && qty <= MAX_QTY_PER_LINE))
+        return NextResponse.json({ error: "Invalid quantity" }, { status: 400 });
+
+      lines.push({ product, color, qty });
+    }
+    const total = lines.reduce((n, l) => n + l.qty * l.product.price, 0);
+    const pieces = lines.reduce((n, l) => n + l.qty, 0);
+    const distinct = [...new Set(lines.map((l) => l.product.id))];
+
+    const subject =
+      lines.length === 1
+        ? `New order: ${lines[0].qty} × ${lines[0].product.name}${lines[0].color ? ` - ${lines[0].color}` : ""} (${station})`
+        : `New order: ${pieces} items, ${formatPrice(total)} (${station})`;
+
+    const rows = lines
+      .map(
+        (l) => `<tr>
+          <td style="padding:6px 10px 6px 0">${l.product.images[0] ? `<img src="${esc(absoluteUrl(l.product.images[0]))}" width="64" style="border-radius:8px">` : ""}</td>
+          <td style="padding:6px 10px 6px 0"><b>${esc(l.product.name)}</b>${l.color ? `<br>Colour: <b>${esc(l.color)}</b>` : ""}</td>
+          <td style="padding:6px 10px 6px 0;white-space:nowrap">${l.qty} &times; ${formatPrice(l.product.price)}</td>
+          <td style="padding:6px 0;white-space:nowrap"><b>${formatPrice(l.qty * l.product.price)}</b></td>
+        </tr>`,
+      )
+      .join("");
 
     const [saved, emailed] = await Promise.all([
       save({
         kind: "order",
         name,
         station,
-        product_id: supabaseConfigured ? product.id : null,
-        details: { product: product.name, price: product.price, ...(color ? { colour: color } : {}) },
+        product_id: supabaseConfigured && distinct.length === 1 ? distinct[0] : null,
+        details: {
+          items: lines.map((l) => ({
+            product: l.product.name,
+            colour: l.color,
+            qty: l.qty,
+            price: l.product.price,
+          })),
+          total,
+        },
       }),
       sendEmail(
-        `New order: ${product.name}${color ? ` - ${color}` : ""} (${station})`,
+        subject,
         `<h2>New order enquiry</h2>
-         <p><b>${esc(product.name)}</b> &middot; ${formatPrice(product.price)}</p>
-         <p>Name: <b>${esc(name)}</b><br>${color ? `Colour: <b>${esc(color)}</b><br>` : ""}Pickup station: <b>${esc(station)}</b></p>
-         ${product.images[0] ? `<p><img src="${esc(absoluteUrl(product.images[0]))}" width="240"></p>` : ""}
+         <table cellspacing="0" cellpadding="0" style="border-collapse:collapse">${rows}</table>
+         <p style="font-size:16px"><b>Total: ${formatPrice(total)}</b> (${pieces} ${pieces === 1 ? "item" : "items"})</p>
+         <p>Name: <b>${esc(name)}</b><br>Pickup station: <b>${esc(station)}</b></p>
          <p>The buyer is being redirected to WhatsApp (8655434260). Payment and pickup time are decided there.</p>`,
         [],
       ),
     ]);
 
-    return NextResponse.json({ waUrl: waLink(orderMessage(product, name, station, color)), saved, emailed });
+    return NextResponse.json({ waUrl: waLink(orderMessage(lines, total, name, station)), saved, emailed });
   }
 
   // ------------------------------------------------------------ custom request

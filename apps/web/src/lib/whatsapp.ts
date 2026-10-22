@@ -7,23 +7,22 @@ export const absoluteUrl = (u: string) => (u.startsWith("http") ? u : SITE_URL +
 export const waLink = (text: string) =>
   `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 
-export function orderMessage(p: Product, name: string, station: string, color = "") {
-  const lines = [
-    `Hi ${SHOP_NAME}! 👋 I'd like to order this:`,
-    "",
-    `*${p.name}*`,
-    `Price: ${formatPrice(p.price)}`,
-    p.material ? `Material: ${p.material}` : false,
-    p.type ? `Type: ${p.type}` : false,
-    p.size ? `Size: ${p.size}` : false,
-    color || p.color ? `Colour: ${color || p.color}` : false,
-    `Link: ${SITE_URL}/product/${p.id}`,
-    ...p.images.slice(0, 3).map((u, i) => `Photo ${i + 1}: ${absoluteUrl(u)}`),
-    "",
-    `Name: ${name}`,
-    `Pickup station: ${station}`,
-  ];
-  return lines.filter((l) => l !== false).join("\n");
+export type OrderLine = { product: Product; color: string; qty: number };
+
+export function orderMessage(lines: OrderLine[], total: number, name: string, station: string) {
+  const showPhotos = lines.length <= 5; // keeps the message short for big orders
+  const out = [`Hi ${SHOP_NAME}! 👋 I'd like to order:`, ""];
+  lines.forEach((l, i) => {
+    const p = l.product;
+    out.push(
+      `${i + 1}. *${p.name}*${l.color ? ` (${l.color})` : ""}`,
+      `   ${l.qty} × ${formatPrice(p.price)} = ${formatPrice(l.qty * p.price)}`,
+      `   Link: ${SITE_URL}/product/${p.id}`,
+    );
+    if (showPhotos && p.images[0]) out.push(`   Photo: ${absoluteUrl(p.images[0])}`);
+  });
+  out.push("", `*Total: ${formatPrice(total)}*`, "", `Name: ${name}`, `Pickup station: ${station}`);
+  return out.join("\n");
 }
 
 export function customMessage(c: {

@@ -30,13 +30,23 @@ export type Catalog = {
   demo: boolean;
 };
 
+/** One line in the buyer's cart (prices are for display only; the server re-reads them). */
+export type CartLine = {
+  key: string;
+  productId: string;
+  name: string;
+  price: number;
+  image: string;
+  color: string;
+  qty: number;
+};
+
 export type EnquiryPayload =
   | {
       kind: "order";
       name: string;
       station: string;
-      productId: string;
-      color?: string;
+      items: { productId: string; color: string; qty: number }[];
     }
   | {
       kind: "custom";

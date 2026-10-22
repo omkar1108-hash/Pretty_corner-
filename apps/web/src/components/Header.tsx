@@ -1,6 +1,7 @@
 "use client";
 
 import Dropdown from "./Dropdown";
+import CartButton from "./CartButton";
 import Link from "next/link";
 import { useLang, useT } from "./LanguageProvider";
 import { LANGS, LANG_LABELS } from "@/lib/i18n";
@@ -24,6 +25,7 @@ export default function Header() {
           <Link href="/custom" className="hidden whitespace-nowrap rounded-full px-2 py-1.5 hover:bg-blush sm:block sm:px-3">
             {t.navCustom}
           </Link>
+          <CartButton />
           <Dropdown
             label="Language"
             value={lang}

@@ -1,5 +1,6 @@
 import BackgroundStage from "@/components/BackgroundStage";
 import BottomNav from "@/components/BottomNav";
+import CartProvider from "@/components/CartProvider";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -17,13 +18,13 @@ async function backgroundImages() {
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <CartProvider>
       <BackgroundStage images={await backgroundImages()} />
       <SmoothScroll />
       <Header />
       <main>{children}</main>
       <Footer />
       <BottomNav />
-    </>
+    </CartProvider>
   );
 }
