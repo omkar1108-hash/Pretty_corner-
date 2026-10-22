@@ -70,20 +70,31 @@ export async function POST(req: Request) {
     const product = await getProduct(clean(body.productId, 64));
     if (!product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
+    // if the seller listed colours for this product, the buyer must have chosen one of them
+    const color = clean(body.color, 40);
+    if (product.colors.length > 0 && !product.colors.includes(color))
+      return NextResponse.json({ error: "Please choose a colour" }, { status: 400 });
+
     const [saved, emailed] = await Promise.all([
-      save({ kind: "order", name, station, product_id: supabaseConfigured ? product.id : null, details: { product: product.name, price: product.price } }),
+      save({
+        kind: "order",
+        name,
+        station,
+        product_id: supabaseConfigured ? product.id : null,
+        details: { product: product.name, price: product.price, ...(color ? { colour: color } : {}) },
+      }),
       sendEmail(
-        `New order: ${product.name} (${station})`,
+        `New order: ${product.name}${color ? ` - ${color}` : ""} (${station})`,
         `<h2>New order enquiry</h2>
          <p><b>${esc(product.name)}</b> &middot; ${formatPrice(product.price)}</p>
-         <p>Name: <b>${esc(name)}</b><br>Pickup station: <b>${esc(station)}</b></p>
+         <p>Name: <b>${esc(name)}</b><br>${color ? `Colour: <b>${esc(color)}</b><br>` : ""}Pickup station: <b>${esc(station)}</b></p>
          ${product.images[0] ? `<p><img src="${esc(absoluteUrl(product.images[0]))}" width="240"></p>` : ""}
          <p>The buyer is being redirected to WhatsApp (8655434260). Payment and pickup time are decided there.</p>`,
         [],
       ),
     ]);
 
-    return NextResponse.json({ waUrl: waLink(orderMessage(product, name, station)), saved, emailed });
+    return NextResponse.json({ waUrl: waLink(orderMessage(product, name, station, color)), saved, emailed });
   }
 
   // ------------------------------------------------------------ custom request

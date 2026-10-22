@@ -72,6 +72,7 @@ export function sampleCatalog(): Catalog {
       type: name(types, type),
       size,
       color,
+      colors: color.split(",").map((x) => x.trim()).filter((x) => x && x !== "Assorted"),
       images,
       available: true,
       created_at: new Date(Date.now() - i * 86_400_000).toISOString(),

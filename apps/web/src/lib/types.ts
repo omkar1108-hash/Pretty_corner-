@@ -13,7 +13,10 @@ export type Product = {
   material: string | null;
   type: string | null;
   size: string;
+  /** display text, e.g. "Pink, Yellow" */
   color: string;
+  /** the colours a buyer can pick from when ordering (empty = no choice) */
+  colors: string[];
   images: string[];
   available: boolean;
   created_at: string;
@@ -33,6 +36,7 @@ export type EnquiryPayload =
       name: string;
       station: string;
       productId: string;
+      color?: string;
     }
   | {
       kind: "custom";

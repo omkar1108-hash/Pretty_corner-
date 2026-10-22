@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import type { Category } from "@/lib/types";
 
-type Table = "materials" | "product_types";
+type Table = "materials" | "product_types" | "colors";
 
 function CategoryList({ title, table, hint }: { title: string; table: Table; hint: string }) {
   const [items, setItems] = useState<Category[]>([]);
@@ -71,6 +71,7 @@ export default function CategoriesPage() {
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <CategoryList title="Materials" table="materials" hint="What it is made of, e.g. Chenille, Crochet, Kundan." />
         <CategoryList title="Product types" table="product_types" hint="What it is, e.g. Hair clip, Keychain, Earrings." />
+        <CategoryList title="Colours" table="colors" hint="Colours you work with, e.g. Pink, Red, Violet. You choose which ones each product comes in, and buyers pick one when they order." />
       </div>
     </>
   );

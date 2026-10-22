@@ -16,6 +16,12 @@ create table if not exists product_types (
   created_at timestamptz not null default now()
 );
 
+create table if not exists colors (
+  id         uuid primary key default gen_random_uuid(),
+  name       text not null unique,
+  created_at timestamptz not null default now()
+);
+
 -- ------------------------------------------------------------------ products
 create table if not exists products (
   id          uuid primary key default gen_random_uuid(),
@@ -28,6 +34,8 @@ create table if not exists products (
   type_id     uuid references product_types (id) on delete set null,
   size        text not null default '',
   color       text not null default '',
+  -- the colours a buyer can choose from for this product (ids from the colors table)
+  color_ids   uuid[] not null default '{}',
   images      text[] not null default '{}',
   available   boolean not null default true,
   created_at  timestamptz not null default now()
@@ -56,17 +64,20 @@ create index if not exists enquiries_created_idx on enquiries (created_at desc);
 alter table materials     enable row level security;
 alter table product_types enable row level security;
 alter table products      enable row level security;
+alter table colors        enable row level security;
 alter table enquiries     enable row level security;
 
 -- Anyone (buyers, no login) can read the catalogue.
 create policy "public read materials"     on materials     for select using (true);
 create policy "public read product_types" on product_types for select using (true);
 create policy "public read products"      on products      for select using (true);
+create policy "public read colors"        on colors        for select using (true);
 
 -- Only the logged-in seller can change the catalogue.
 create policy "seller write materials"     on materials     for all to authenticated using (true) with check (true);
 create policy "seller write product_types" on product_types for all to authenticated using (true) with check (true);
 create policy "seller write products"      on products      for all to authenticated using (true) with check (true);
+create policy "seller write colors"        on colors        for all to authenticated using (true) with check (true);
 
 -- Buyers can only *create* enquiries; only the seller can read / update / delete them.
 create policy "anyone can create enquiry" on enquiries for insert to anon, authenticated

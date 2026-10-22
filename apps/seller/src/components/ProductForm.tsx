@@ -22,12 +22,27 @@ async function resolveCategory(table: "materials" | "product_types", choice: str
   return created.data.id as string;
 }
 
+/** Finds a colour by name (case-insensitive) or creates it. Returns its id. */
+async function resolveColor(rawName: string) {
+  const name = rawName.trim();
+  const db = getSupabase();
+  const existing = await db.from("colors").select("id").ilike("name", name).maybeSingle();
+  if (existing.data) return existing.data.id as string;
+  const created = await db.from("colors").insert({ name }).select("id").single();
+  if (created.error) throw created.error;
+  return created.data.id as string;
+}
+
 export default function ProductForm({ productId }: { productId?: string }) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
 
   const [materials, setMaterials] = useState<Category[]>([]);
   const [types, setTypes] = useState<Category[]>([]);
+  const [colors, setColors] = useState<Category[]>([]);
+  const [colorIds, setColorIds] = useState<string[]>([]);
+  const [newColors, setNewColors] = useState<string[]>([]); // typed here, saved with the product
+  const [colorDraft, setColorDraft] = useState("");
   const [loading, setLoading] = useState(Boolean(productId));
 
   const [kind, setKind] = useState<Kind>("product");
@@ -38,7 +53,6 @@ export default function ProductForm({ productId }: { productId?: string }) {
   const [type, setType] = useState("");
   const [newType, setNewType] = useState("");
   const [size, setSize] = useState("");
-  const [color, setColor] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [available, setAvailable] = useState(true);
@@ -50,12 +64,14 @@ export default function ProductForm({ productId }: { productId?: string }) {
   useEffect(() => {
     const db = getSupabase();
     (async () => {
-      const [m, t] = await Promise.all([
+      const [m, t, c] = await Promise.all([
         db.from("materials").select("id, name").order("name"),
         db.from("product_types").select("id, name").order("name"),
+        db.from("colors").select("id, name").order("name"),
       ]);
       setMaterials(m.data ?? []);
       setTypes(t.data ?? []);
+      setColors(c.data ?? []);
 
       if (productId) {
         const { data } = await db.from("products").select("*").eq("id", productId).single();
@@ -66,7 +82,13 @@ export default function ProductForm({ productId }: { productId?: string }) {
           setMaterial(data.material_id ?? "");
           setType(data.type_id ?? "");
           setSize(data.size);
-          setColor(data.color);
+          // products saved before colours became a list only have a text like "Pink, Yellow"
+          const saved: string[] = data.color_ids ?? [];
+          if (saved.length) setColorIds(saved);
+          else {
+            const legacy = String(data.color ?? "").split(",").map((x: string) => x.trim().toLowerCase()).filter(Boolean);
+            setColorIds((c.data ?? []).filter((x) => legacy.includes(x.name.toLowerCase())).map((x) => x.id));
+          }
           setDescription(data.description);
           setImages(data.images);
           setAvailable(data.available);
@@ -91,6 +113,15 @@ export default function ProductForm({ productId }: { productId?: string }) {
     }
   }
 
+  function addDraftColor() {
+    const n = colorDraft.trim();
+    if (!n) return;
+    const existing = colors.find((c) => c.name.toLowerCase() === n.toLowerCase());
+    if (existing) setColorIds((cur) => (cur.includes(existing.id) ? cur : [...cur, existing.id]));
+    else if (!newColors.some((x) => x.toLowerCase() === n.toLowerCase())) setNewColors((cur) => [...cur, n]);
+    setColorDraft("");
+  }
+
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return setError("Please enter a product name.");
@@ -100,13 +131,25 @@ export default function ProductForm({ productId }: { productId?: string }) {
     setSaving(true);
     setError("");
     try {
+      const ids = [...colorIds];
+      const names = colors.filter((c) => ids.includes(c.id)).map((c) => c.name);
+      // a colour typed but not yet "Add"-ed still counts
+      const pending = [...newColors];
+      const draft = colorDraft.trim();
+      if (draft && !pending.some((x) => x.toLowerCase() === draft.toLowerCase())) pending.push(draft);
+      for (const n of pending) {
+        const id = await resolveColor(n);
+        if (!ids.includes(id)) { ids.push(id); names.push(n); }
+      }
+      const chosenNames = names.join(", ");
       const row = {
         kind,
         name: name.trim(),
         price: amount,
         description: description.trim(),
         size: size.trim(),
-        color: color.trim(),
+        color: chosenNames,
+        color_ids: ids,
         images,
         available,
         material_id: await resolveCategory("materials", material, newMaterial),
@@ -178,15 +221,57 @@ export default function ProductForm({ productId }: { productId?: string }) {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div>
         <div>
           <label className="label" htmlFor="p-size">Size</label>
           <input id="p-size" className="input" list="sizes" value={size} onChange={(e) => setSize(e.target.value)} maxLength={40} />
           <datalist id="sizes">{SIZE_SUGGESTIONS.map((s) => <option key={s} value={s} />)}</datalist>
         </div>
-        <div>
-          <label className="label" htmlFor="p-color">Colour</label>
-          <input id="p-color" className="input" value={color} onChange={(e) => setColor(e.target.value)} maxLength={40} />
+      </div>
+
+
+      <div>
+        <span className="label">Colours this comes in</span>
+        <p className="mb-2 text-xs text-muted">Buyers pick one of these when they order. Add colours once in Categories, then tick them here.</p>
+        <div className="flex flex-wrap gap-2">
+          {colors.map((c) => {
+            const on = colorIds.includes(c.id);
+            return (
+              <button
+                key={c.id}
+                type="button"
+                aria-pressed={on}
+                onClick={() => setColorIds((cur) => (on ? cur.filter((x) => x !== c.id) : [...cur, c.id]))}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold ${on ? "border-brand bg-tint text-brand" : "border-line"}`}
+              >
+                {on && "✓ "}{c.name}
+              </button>
+            );
+          })}
+          {newColors.map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setNewColors((cur) => cur.filter((x) => x !== n))}
+              className="rounded-full border border-brand bg-tint px-4 py-2 text-sm font-semibold text-brand"
+              title="Tap to remove"
+            >
+              ✓ {n} ×
+            </button>
+          ))}
+        </div>
+        <div className="mt-2 flex gap-2">
+          <input
+            className="input"
+            placeholder="+ Add a new colour…"
+            value={colorDraft}
+            maxLength={40}
+            onChange={(e) => setColorDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") { e.preventDefault(); addDraftColor(); }
+            }}
+          />
+          <button type="button" className="btn btn-ghost" onClick={addDraftColor}>Add</button>
         </div>
       </div>
 

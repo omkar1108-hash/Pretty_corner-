@@ -35,7 +35,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
   const [open, setOpen] = useState(false);
 
   const sizes = useMemo(() => uniq(products.map((p) => p.size)), [products]);
-  const colors = useMemo(() => uniq(products.map((p) => p.color)), [products]);
+  const colors = useMemo(() => uniq(products.flatMap((p) => p.colors)), [products]);
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -47,7 +47,7 @@ export default function ShopBrowser({ catalog }: { catalog: Catalog }) {
       if (material && p.material_id !== material) return false;
       if (type && p.type_id !== type) return false;
       if (size && p.size !== size) return false;
-      if (color && p.color !== color) return false;
+      if (color && !p.colors.includes(color)) return false;
       if (p.price < lo || p.price > hi) return false;
       if (needle) {
         const hay = [p.name, p.description, p.material, p.type, p.color, p.size].join(" ").toLowerCase();

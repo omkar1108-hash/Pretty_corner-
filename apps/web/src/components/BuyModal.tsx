@@ -13,16 +13,18 @@ export default function BuyModal({ product, onClose }: { product: Product; onClo
   const t = useT();
   const [name, setName] = useState("");
   const [station, setStation] = useState("");
+  const [color, setColor] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [waUrl, setWaUrl] = useState("");
 
-  useEffect(() => setError(""), [name, station]);
+  useEffect(() => setError(""), [name, station, color]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return setError(t.nameRequired);
     if (!station) return setError(t.stationRequired);
+    if (product.colors.length > 0 && !color) return setError(t.colorRequired);
 
     setError("");
     setBusy(true);
@@ -30,7 +32,7 @@ export default function BuyModal({ product, onClose }: { product: Product; onClo
       const res = await fetch("/api/enquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "order", name, station, productId: product.id }),
+        body: JSON.stringify({ kind: "order", name, station, productId: product.id, color }),
       });
       const data = await res.json();
       if (!res.ok || !data.waUrl) throw new Error(data.error);
@@ -76,6 +78,27 @@ export default function BuyModal({ product, onClose }: { product: Product; onClo
             <label className="label" htmlFor="buy-name">{t.yourName}</label>
             <input id="buy-name" className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={80} autoFocus />
           </div>
+          {product.colors.length > 0 && (
+            <div role="radiogroup" aria-label={t.chooseColor}>
+              <span className="label">{t.chooseColor}</span>
+              <div className="flex flex-wrap gap-2">
+                {product.colors.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    role="radio"
+                    aria-checked={color === c}
+                    onClick={() => setColor(c)}
+                    className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                      color === c ? "border-rose bg-rose text-white" : "border-line bg-white text-ink hover:bg-blush"
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div>
             <label className="label" htmlFor="buy-station">{t.pickupStation}</label>
             <Dropdown id="buy-station" value={station} onChange={setStation}>

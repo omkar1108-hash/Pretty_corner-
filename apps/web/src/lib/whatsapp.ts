@@ -7,7 +7,7 @@ export const absoluteUrl = (u: string) => (u.startsWith("http") ? u : SITE_URL +
 export const waLink = (text: string) =>
   `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 
-export function orderMessage(p: Product, name: string, station: string) {
+export function orderMessage(p: Product, name: string, station: string, color = "") {
   const lines = [
     `Hi ${SHOP_NAME}! 👋 I'd like to order this:`,
     "",
@@ -16,7 +16,7 @@ export function orderMessage(p: Product, name: string, station: string) {
     p.material ? `Material: ${p.material}` : false,
     p.type ? `Type: ${p.type}` : false,
     p.size ? `Size: ${p.size}` : false,
-    p.color ? `Colour: ${p.color}` : false,
+    color || p.color ? `Colour: ${color || p.color}` : false,
     `Link: ${SITE_URL}/product/${p.id}`,
     ...p.images.slice(0, 3).map((u, i) => `Photo ${i + 1}: ${absoluteUrl(u)}`),
     "",
